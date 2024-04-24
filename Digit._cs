@@ -1,0 +1,560 @@
+﻿using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Shapes;
+
+namespace WpfDigitalClock
+{
+    public class Digit : Panel
+    {
+        #region Поля и свойства
+
+        // Ширина цифры без фасоки и промежутков.
+        double widthBlankSegment = 100;
+
+        // Высота квадрата верхней или нижней половинок цифры.
+        // Цифра состоит из верхней и нижней половинок.
+        public double heightBlankSegment = 100;
+
+        // Толщина сегментов - обрезанных (клипированных) полигонов.
+        double thicknessSegment = 30;
+
+        // Смещение точек линий смежных полигонов
+        // к центральному полигону (элементу).
+        double correctCenter = 10;
+
+        // Смещение элементов цифры друг от друга,
+        // значение изменяет промежуток между элементами. 
+        double _strokeThickness = 1;
+        public double StrokeThickness
+        {
+            get { return _strokeThickness; }
+            set { _strokeThickness = value; }
+        }
+
+        // Цвет элементов цифры.
+        SolidColorBrush _colorDigit = Brushes.Black;
+        public SolidColorBrush ColorDigit
+        {
+            get { return _colorDigit; }
+            set
+            {
+                _colorDigit = value;
+
+                DrawDigit(0, 0);
+            }
+        }
+
+        #endregion
+
+
+        #region Инициализация
+
+        public Digit() : base()
+        {
+            // Размер цифры по умолчанию
+            Width = 100;
+
+            // Создание обработчика события изменения размеров
+            // родительской панели.
+            this.SizeChanged += Digit_SizeChanged;
+
+            // Инициализация полигонов - элементов цифры,
+            // и добавления их в коллекцию дочерних элементов 
+            // родительской панели.
+            for (int i = 0; i < 7; i++)
+            {
+                Children.Add(new Polygon());
+            }
+        }
+
+        #endregion
+
+
+        #region Управление значением цифры
+
+        // Визуализация различных значений цифры.
+        public void ValueDigit(int digit)
+        {
+            switch (digit)
+            {
+                case 0:
+                    // Left
+                    Children[0].Opacity = 1;
+                    // Top
+                    Children[1].Opacity = 1;
+                    // Right
+                    Children[2].Opacity = 1;
+                    // Center
+                    Children[3].Opacity = 0;
+                    // LeftBottom
+                    Children[4].Opacity = 1;
+                    // Bottom
+                    Children[5].Opacity = 1;
+                    // RightBottom
+                    Children[6].Opacity = 1;
+
+                    break;
+                case 1:
+                    // Left
+                    Children[0].Opacity = 0;
+                    // Top
+                    Children[1].Opacity = 0;
+                    // Right
+                    Children[2].Opacity = 1;
+                    // Center
+                    Children[3].Opacity = 0;
+                    // LeftBottom
+                    Children[4].Opacity = 0;
+                    // Bottom
+                    Children[5].Opacity = 0;
+                    // RightBottom
+                    Children[6].Opacity = 1;
+
+                    break;
+                case 2:
+                    // Left
+                    Children[0].Opacity = 0;
+                    // Top
+                    Children[1].Opacity = 1;
+                    // Right
+                    Children[2].Opacity = 1;
+                    // Center
+                    Children[3].Opacity = 1;
+                    // LeftBottom
+                    Children[4].Opacity = 1;
+                    // Bottom
+                    Children[5].Opacity = 1;
+                    // RightBottom
+                    Children[6].Opacity = 0;
+                    break;
+                case 3:
+                    // Left
+                    Children[0].Opacity = 0;
+                    // Top
+                    Children[1].Opacity = 1;
+                    // Right
+                    Children[2].Opacity = 1;
+                    // Center
+                    Children[3].Opacity = 1;
+                    // LeftBottom
+                    Children[4].Opacity = 0;
+                    // Bottom
+                    Children[5].Opacity = 1;
+                    // RightBottom
+                    Children[6].Opacity = 1;
+                    break;
+                case 4:
+                    // Left
+                    Children[0].Opacity = 1;
+                    // Top
+                    Children[1].Opacity = 0;
+                    // Right
+                    Children[2].Opacity = 1;
+                    // Center
+                    Children[3].Opacity = 1;
+                    // LeftBottom
+                    Children[4].Opacity = 0;
+                    // Bottom
+                    Children[5].Opacity = 0;
+                    // RightBottom
+                    Children[6].Opacity = 1;
+                    break;
+                case 5:
+                    // Left
+                    Children[0].Opacity = 1;
+                    // Top
+                    Children[1].Opacity = 1;
+                    // Right
+                    Children[2].Opacity = 0;
+                    // Center
+                    Children[3].Opacity = 1;
+                    // LeftBottom
+                    Children[4].Opacity = 0;
+                    // Bottom
+                    Children[5].Opacity = 1;
+                    // RightBottom
+                    Children[6].Opacity = 1;
+                    break;
+                case 6:
+                    // Left
+                    Children[0].Opacity = 1;
+                    // Top
+                    Children[1].Opacity = 1;
+                    // Right
+                    Children[2].Opacity = 0;
+                    // Center
+                    Children[3].Opacity = 1;
+                    // LeftBottom
+                    Children[4].Opacity = 1;
+                    // Bottom
+                    Children[5].Opacity = 1;
+                    // RightBottom
+                    Children[6].Opacity = 1;
+                    break;
+                case 7:
+                    // Left
+                    Children[0].Opacity = 0;
+                    // Top
+                    Children[1].Opacity = 1;
+                    // Right
+                    Children[2].Opacity = 1;
+                    // Center
+                    Children[3].Opacity = 0;
+                    // LeftBottom
+                    Children[4].Opacity = 0;
+                    // Bottom
+                    Children[5].Opacity = 0;
+                    // RightBottom
+                    Children[6].Opacity = 1;
+                    break;
+                case 8:
+                    // Left
+                    Children[0].Opacity = 1;
+                    // Top
+                    Children[1].Opacity = 1;
+                    // Right
+                    Children[2].Opacity = 1;
+                    // Center
+                    Children[3].Opacity = 1;
+                    // LeftBottom
+                    Children[4].Opacity = 1;
+                    // Bottom
+                    Children[5].Opacity = 1;
+                    // RightBottom
+                    Children[6].Opacity = 1;
+                    break;
+                case 9:
+                    // Left
+                    Children[0].Opacity = 1;
+                    // Top
+                    Children[1].Opacity = 1;
+                    // Right
+                    Children[2].Opacity = 1;
+                    // Center
+                    Children[3].Opacity = 1;
+                    // LeftBottom
+                    Children[4].Opacity = 0;
+                    // Bottom
+                    Children[5].Opacity = 1;
+                    // RightBottom
+                    Children[6].Opacity = 1;
+                    break;
+            }
+
+
+
+        }
+
+        #endregion
+
+
+        #region Метод корректировки размеров элементов цифры
+
+        // Метод событие для автоматической корректировки размеров всех элементов цифры
+        // при изменении размеров родителя-панели.
+        private void Digit_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            // Вычисление ширины цифры на основе заданной пользователем общей ширины.
+            widthBlankSegment = Width - (2 * thicknessSegment / 3 + _strokeThickness * 2);
+
+            // Высота элементов половинки и ширина цифры всегда одинаковые.
+            // Цифра состоит из верхней половинки и нижней половинки.
+            heightBlankSegment = widthBlankSegment;
+
+            // Корректировка толщины центрального элемента,
+            // для уравнивания с толщинами других элементов.
+            correctCenter = widthBlankSegment / 8;
+
+            // Корректировка толщины элементов цифры.
+            thicknessSegment = widthBlankSegment / 4;
+
+            // Вычисление общей высоты цифры с верхней и нижней половинками.
+            this.Height = heightBlankSegment * 2 + 2 * thicknessSegment / 3 + _strokeThickness * 2 + _strokeThickness * 2;
+
+            // Рисование полной цифры с новыми размерами.
+            DrawDigit(0, 0);
+        }
+
+        #endregion
+
+
+        #region Рисование графики элементов цифры
+
+        void DrawDigit(double x, double y)
+        {
+            x = x +
+                // Смещение вправо на фаску левых сегментов
+                thicknessSegment / 3 +
+                // Смещение вправо на толщину промежутка
+                // (смещение левых элементов вправо для создания промежутка).
+                _strokeThickness;
+
+            // Смещение по высоте на фаску сегмента и
+            // межэлементного промежутка (смещения верхнего элемента вверх для создания промежутка между элементами).
+            y = y + thicknessSegment / 3 + _strokeThickness;
+
+            // Рисование элементов цифры.
+            SegmentLeft(x, y, _colorDigit, _strokeThickness);
+            SegmentTop(x, y, _colorDigit, _strokeThickness);
+            SegmentRight(x, y, _colorDigit, _strokeThickness);
+            SegmentCenter(x, y, _colorDigit, _strokeThickness);
+            SegmentLeftBottom(x, y, _colorDigit, _strokeThickness);
+            SegmentBottom(x, y, _colorDigit, _strokeThickness);
+            SegmentRightBottom(x, y, _colorDigit, _strokeThickness);
+        }
+
+        void SegmentLeft(double x, double y, SolidColorBrush color, double strokeThickness)
+        {
+            Polygon pg = (Polygon)Children[0];
+            PointCollection Points = new()
+            {
+				// left
+				new System.Windows.Point(x - widthBlankSegment / 2, y + heightBlankSegment / 2),
+				// top
+				new Point(x, y),
+				// right
+				new Point(x + widthBlankSegment / 2, y + heightBlankSegment / 2),
+				// right2
+				new Point(x + widthBlankSegment / 2, y + heightBlankSegment / 2 + correctCenter /*корректирвка центрального*/),
+				// bottom
+				new Point(x, y + heightBlankSegment)
+            };
+            pg.Points = Points;
+            pg.Fill = color;
+
+            TranslateTransform tt = new()
+            {
+                X = -strokeThickness
+            };
+            pg.RenderTransform = tt;
+
+            // Обрезание прямоугольного полигона до трапеции.
+            RectangleGeometry rg = new()
+            {
+                Rect = new Rect(x - thicknessSegment / 3, y, thicknessSegment, heightBlankSegment)
+            };
+            pg.Clip = rg;
+        }
+
+        void SegmentTop(double x, double y, SolidColorBrush color, double strokeThickness)
+        {
+            Polygon pg = (Polygon)Children[1];
+            PointCollection Points = new()
+            {
+                new Point(x + widthBlankSegment / 2, y - heightBlankSegment / 2),
+                new Point(x + widthBlankSegment, y),
+                new Point(x + widthBlankSegment / 2, y + heightBlankSegment / 2),
+                new Point(x, y)
+            };
+            pg.Points = Points;
+            pg.Fill = color;
+
+            TranslateTransform tt = new()
+            {
+                Y = -strokeThickness
+            };
+            pg.RenderTransform = tt;
+
+            RectangleGeometry rg = new()
+            {
+                Rect = new Rect(x, y - thicknessSegment / 3, widthBlankSegment, thicknessSegment)
+            };
+            pg.Clip = rg;
+        }
+
+        void SegmentRight(double x, double y, SolidColorBrush color, double strokeThickness)
+        {
+            Polygon pg = (Polygon)Children[2];
+            PointCollection Points = new()
+            {
+                // left-correct
+                new Point(x + widthBlankSegment / 2,y + heightBlankSegment / 2 + correctCenter),
+                // left
+                new Point(x + widthBlankSegment / 2,y + heightBlankSegment / 2),
+                // top
+                new Point(x + widthBlankSegment, y),
+                // right
+                new Point(x + widthBlankSegment*1.5, y + heightBlankSegment / 2),
+
+                new Point(x + widthBlankSegment, y + heightBlankSegment)
+            };
+            pg.Points = Points;
+            pg.Fill = color;
+
+            TranslateTransform tt = new()
+            {
+                X = strokeThickness
+            };
+            pg.RenderTransform = tt;
+
+            RectangleGeometry rg = new()
+            {
+                Rect = new Rect(x - thicknessSegment / 1.5 + widthBlankSegment, y, thicknessSegment, heightBlankSegment)
+            };
+            pg.Clip = rg;
+        }
+
+        void SegmentCenter(double x, double y, SolidColorBrush color, double strokeThickness)
+        {
+            Polygon pg = (Polygon)Children[3];
+            PointCollection Points = new()
+            {
+                // top
+                new Point(x + widthBlankSegment/2, y + heightBlankSegment / 2 + correctCenter /*корректирвка центрального*/),
+                new Point(x + widthBlankSegment, y + heightBlankSegment),
+                // bottom
+                new Point(x + widthBlankSegment/2, y + heightBlankSegment*1.5 - correctCenter /*корректирвка центрального*/),
+                new Point(x, y + heightBlankSegment)
+            };
+            pg.Points = Points;
+            pg.Fill = color;
+
+            TranslateTransform tt = new()
+            {
+                Y = strokeThickness
+            };
+            pg.RenderTransform = tt;
+
+            RectangleGeometry rg = new()
+            {
+                Rect = new Rect(x, y + heightBlankSegment - thicknessSegment / 2, widthBlankSegment, thicknessSegment)
+            };
+
+            pg.Clip = rg;
+        }
+
+        void SegmentLeftBottom(double x, double y, SolidColorBrush color, double strokeThickness)
+        {
+            Polygon pg = (Polygon)Children[4];
+            PointCollection Points = new()
+            {
+                // left
+                new Point(x - widthBlankSegment / 2, y + heightBlankSegment *  1.5),
+                // top
+                new Point(x, y + heightBlankSegment),
+                // right correct
+                new Point(x + widthBlankSegment / 2, y - correctCenter + heightBlankSegment *  1.5),
+                // right
+                new Point(x + widthBlankSegment / 2, y + heightBlankSegment *  1.5),
+                // bottom
+                new Point(x, y + heightBlankSegment * 2)
+            };
+            pg.Points = Points;
+            pg.Fill = color;
+
+            TranslateTransform tt = new()
+            {
+                X = -strokeThickness,
+                Y = 2 * strokeThickness
+            };
+            pg.RenderTransform = tt;
+
+            RectangleGeometry rg = new()
+            {
+                Rect = new Rect(x - thicknessSegment / 3, y + heightBlankSegment, thicknessSegment, heightBlankSegment)
+            };
+            pg.Clip = rg;
+        }
+
+        void SegmentBottom(double x, double y, SolidColorBrush color, double strokeThickness)
+        {
+            Polygon pg = (Polygon)Children[5];
+            PointCollection Points = new()
+            {
+                new Point(x + widthBlankSegment / 2, y  + heightBlankSegment * 1.5) ,
+                new Point(x + widthBlankSegment, y + heightBlankSegment * 2) ,
+                new Point(x + widthBlankSegment / 2, y + heightBlankSegment * 2.5) ,
+                new Point(x, y + heightBlankSegment * 2)
+            };
+
+            pg.Points = Points;
+            pg.Fill = color;
+
+            TranslateTransform tt = new()
+            {
+                Y = 3 * strokeThickness
+            };
+            pg.RenderTransform = tt;
+
+            RectangleGeometry rg = new()
+            {
+                Rect = new Rect(x, y - thicknessSegment / 1.5 + heightBlankSegment * 2, widthBlankSegment, thicknessSegment)
+            };
+            pg.Clip = rg;
+        }
+
+        void SegmentRightBottom(double x, double y, SolidColorBrush color, double strokeThickness)
+        {
+            Polygon pg = (Polygon)Children[6];
+            pg.Points = new PointCollection()
+            {
+                // left 
+                new Point(x + widthBlankSegment / 2, y + heightBlankSegment * 1.5) ,
+                // left correct
+                new Point(x + widthBlankSegment / 2, y + heightBlankSegment * 1.5 - correctCenter) ,
+                new Point(x + widthBlankSegment, y + heightBlankSegment) ,
+                new Point(x + widthBlankSegment * 1.5, y + heightBlankSegment * 1.5) ,
+                new Point(x + widthBlankSegment, y + heightBlankSegment * 2)
+            };
+            pg.Fill = color;
+
+            TranslateTransform tt = new()
+            {
+                X = strokeThickness,
+                Y = 2 * strokeThickness
+            };
+            pg.RenderTransform = tt;
+
+            RectangleGeometry rg = new()
+            {
+                Rect = new Rect(x - thicknessSegment / 1.5 + widthBlankSegment, y + heightBlankSegment, thicknessSegment, heightBlankSegment)
+            };
+            pg.Clip = rg;
+        }
+
+        #endregion
+
+
+        #region Переопределенные  методы класса Panel
+
+        // https://learn.microsoft.com/en-us/dotnet/desktop/wpf/controls/how-to-create-a-custom-panel-element?view=netframeworkdesktop-4.8
+
+        // Измерение дочерних элементов
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            Size panelDesiredSize = new();
+
+            foreach (UIElement child in InternalChildren)
+            {
+                // https://learn.microsoft.com/ru-ru/dotnet/api/system.windows.frameworkelement.measureoverride?view=windowsdesktop-7.0
+                //Элементы должны вызываться Measure для каждого дочернего элемента во время этого процесса,
+                // в противном случае дочерние элементы не будут иметь правильного размера или упорядочения.
+                child.Measure(availableSize);
+                panelDesiredSize = child.DesiredSize;
+            }
+
+            return panelDesiredSize;
+        }
+
+
+        // Размещение дочерних элементов
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            foreach (UIElement child in InternalChildren)
+            {
+                double x = 0;
+                double y = 0;
+                // https://learn.microsoft.com/ru-ru/dotnet/api/system.windows.frameworkelement.arrangeoverride?view=windowsdesktop-7.0
+                // Родительские элементы должны вызывать Arrange(Rect)
+                // для каждого дочернего элемента, в противном случае дочерние элементы не будут отображаться.
+                child.Arrange(new Rect(new Point(x, y), child.DesiredSize));
+            }
+
+
+            return finalSize;
+        }
+
+        #endregion
+    }
+}
